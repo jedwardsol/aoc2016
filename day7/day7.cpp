@@ -23,7 +23,7 @@ using namespace std::literals;
 
 struct IP7
 {
-    std::string address;
+    std::string supernet ;
     std::string hypernet;
 };
 
@@ -40,17 +40,17 @@ auto readIP7()
 
     IP7 ip7;
 
-    while(std::getline(data,ip7.address))
+    while(std::getline(data,ip7.supernet))
     {
         size_t  open;
 
-        while((open  = ip7.address.find('[')) !=ip7.address.npos)
+        while((open  = ip7.supernet.find('[')) !=ip7.supernet.npos)
         {
-            auto close = ip7.address.find(']');
+            auto close = ip7.supernet.find(']');
 
-            ip7.hypernet+=ip7.address.substr(open+1,close-open-1) +" ";
+            ip7.hypernet+=ip7.supernet.substr(open+1,close-open-1) + "   ";
 
-            ip7.address.replace(open, close-open+1,1,' ');
+            ip7.supernet.replace(open, close-open+1,3,' ');
         }
 
 
@@ -80,8 +80,30 @@ bool abba(std::string const &s)
 
 bool supportTLS(IP7 const &ip7)
 {
-    return abba(ip7.address)  && !abba(ip7.hypernet) ;
+    return abba(ip7.supernet)  && !abba(ip7.hypernet) ;
 }
+
+bool supportSSL(IP7 const &ip7)
+{
+    auto &s = ip7.supernet;
+
+    for(int i=0; i<s.size()-2;i++)
+    {
+        if(   s[i  ] == s[i+2]
+           && s[i  ] != s[i+1])
+        {
+            std::string bab { s[i+1], s[i], s[i+1]};
+
+            if(ip7.hypernet.find(bab) != ip7.hypernet.npos)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 
 
 int main()
@@ -90,6 +112,7 @@ try
     auto ip7s=readIP7();    
 
     std::cout << std::format("Part 1 : {}\n", std::ranges::count_if(ip7s, supportTLS));
+    std::cout << std::format("Part 2 : {}\n", std::ranges::count_if(ip7s, supportSSL));
 
     return 0;
 }
