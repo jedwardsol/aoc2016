@@ -50,12 +50,12 @@ void hasher(int start, int increment)
 
             if(digits2 < 8)
             {
-                int index = digest[6] - '0';
+                int index = digest[5] - '0';
 
                 if(   index < 8
                    && password2[index] == '_')
                 {
-                    password2[index]=digest[7];
+                    password2[index]=digest[6];
                     digits2++;
                 }
             }
