@@ -52,11 +52,12 @@ void hasher(int start, int increment)
             {
                 int index = digest[6] - '0';
 
-                if(index < 8)
+                if(   index < 8
+                   && password2[index] == '_')
                 {
                     password2[index]=digest[7];
+                    digits2++;
                 }
-                digits2++;
             }
 
             std::cout << password1 << ' ' << password2 << "\n";
@@ -69,7 +70,7 @@ void hasher(int start, int increment)
 int main()
 try
 {
-    constexpr int numThreads=6;
+    constexpr int numThreads=8;
 
     std::array<std::thread,numThreads>   threads;
 
