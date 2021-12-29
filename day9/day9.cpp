@@ -81,7 +81,9 @@ void expandOnce(std::string &string)
 
 
 // brute force - but remove everything before the 1st ( since it is irrelevent
-// this keeps the max length of the string reasonable (10^5) even though the final expanded length would be 10^9)
+// this keeps the max length of the string reasonable (10^5) even though the final expanded length would be 10^9
+// v.slow : 5 minutes!
+
 size_t expandAndTrim(std::string &string)
 {
     size_t      trimmed{};
