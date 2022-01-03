@@ -19,7 +19,20 @@ using namespace std::literals;
 using  Floor = uint16_t;                    // even bits = microchips
                                             // odd  bits = generators
 
-using  State = std::array<Floor,4>;
+
+constexpr Floor allGenerators 
+{
+    0b10'10'10'10'10'10'10'10,    
+};
+
+
+struct State
+{
+    int                 elevatorFloor;
+    std::array<Floor,4> floors;
+
+    auto operator<=>(State const &) const noexcept = default;
+};
 
 struct Visit
 {
@@ -44,21 +57,27 @@ Test input
     F1 E  .  HM .  LM 
 */
 
-State testInitialState 
-{{
-    0b01'01,    
-    0b10'00,    
-    0b00'10,    
-    0b00'00,    
-}};
+constexpr State testInitialState 
+{
+    0,
+    {
+        0b01'01,    
+        0b10'00,    
+        0b00'10,    
+        0b00'00,    
+    }
+};
 
-State testFinalState 
-{{
-    0b00'00,    
-    0b00'00,    
-    0b00'00,    
-    0b11'11,    
-}};
+constexpr State testFinalState 
+{
+    3,
+    {
+        0b00'00,    
+        0b00'00,    
+        0b00'00,    
+        0b11'11,    
+    }
+};
 
 
 
@@ -82,22 +101,84 @@ Real input
 
 
 
-State realInitialState 
-{{
-    0b11'10'10'00'00,    
-    0b00'01'01'00'00,    
-    0b00'00'00'11'11,    
-    0b00'00'00'00'00,    
-}};
 
-State realFinalState 
-{{
-    0b00'00'00'00'00,    
-    0b00'00'00'00'00,    
-    0b00'00'00'00'00,    
-    0b11'11'11'11'11,    
-}};
+constexpr State realInitialState 
+{
+    0,
+    {
+        0b11'10'10'00'00,    
+        0b00'01'01'00'00,    
+        0b00'00'00'11'11,    
+        0b00'00'00'00'00,    
+    }
+};
 
+constexpr State realFinalState 
+{
+    3,
+    {
+        0b00'00'00'00'00,    
+        0b00'00'00'00'00,    
+        0b00'00'00'00'00,    
+        0b11'11'11'11'11,    
+    }
+};
+
+
+uint16_t    microchip(int i)
+{
+    return 1u << (i*2);
+}
+
+uint16_t    generator(int i)
+{
+    return 1u << ((i*2)+1);
+}
+
+
+
+
+/* could precompute some masks */
+bool isValidFloor(Floor const &floor, int numPairs)
+{
+    /*     if a chip (even bit) is on.
+       and the corresponding generator (odd bit) is off
+       and another generator (odd bit)  is on
+       then 
+            invalid
+       else
+            valid
+    */
+
+    for(int pair=0;pair<numPairs;pair++)
+    {
+        if(    (floor & microchip(pair))
+           && !(floor & generator(pair))) 
+        {
+            if(floor & allGenerators)
+            {
+                return false;
+            }
+        }
+    }
+
+
+    return true;
+}
+
+
+bool isValidState(State const &state, int numPairs)
+{
+    for(auto floor : state.floors)
+    {
+        if(!isValidFloor(floor, numPairs))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 
 
@@ -105,6 +186,10 @@ int solve(State initialState, State finalState, int numPairs)
 {
     std::map<State,Visit>           progress;
     std::priority_queue<State>      toVisit;
+
+
+    progress[initialState].visited  = true;
+    progress[initialState].distance = 0;
 
 
     return 0;
