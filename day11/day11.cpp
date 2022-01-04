@@ -16,6 +16,8 @@
 using namespace std::literals;
 #include "include/thrower.h"
 
+constexpr auto infinity = std::numeric_limits<int>::max();
+
 using  Floor = uint16_t;                    // even bits = microchips
                                             // odd  bits = generators
 
@@ -34,10 +36,19 @@ struct State
     auto operator<=>(State const &) const noexcept = default;
 };
 
-struct Visit
+
+struct ToVisit
 {
-    bool visited{};
-    int  distance{};        // number of moves to get here
+    int                 moves;
+    State               state;
+    auto operator<=>(ToVisit const &) const noexcept = default;
+};
+
+
+struct Progress
+{
+    bool visited {false};
+    int  moves   {infinity};        // number of moves to get here
 };
 
 
@@ -182,17 +193,63 @@ bool isValidState(State const &state, int numPairs)
 
 
 
+auto getNextStates(State  const &current)
+{
+
+    return std::vector<State>{};
+}
+
+
 int solve(State initialState, State finalState, int numPairs)
 {
-    std::map<State,Visit>           progress;
-    std::priority_queue<State>      toVisit;
+    std::map<State,Progress>         progress;
+    std::priority_queue<ToVisit>     toVisit;
+
+    progress[initialState].moves    = 0;
+
+    progress[finalState].visited    = false;
+    progress[finalState].moves      = infinity;
+
+    toVisit.push({0,initialState});
+
+    while(!progress[finalState].visited)
+    {
+        auto current = toVisit.top();
+        toVisit.pop();
+
+        if(progress[current.state].visited)
+        {
+            continue;
+        }
+
+        progress[current.state].visited=true;            
+
+        auto candidates = getNextStates(current.state);
+
+        for(auto const &candidate : candidates)
+        {
+            if(progress[candidate].visited)
+            {
+                continue;
+            }
+
+            auto moves = progress[current.state].moves+1;
+
+            if(progress[candidate].moves < moves)
+            {
+                continue;
+            }
+
+            progress[candidate].moves = moves;
+
+            toVisit.push( { moves, candidate });
 
 
-    progress[initialState].visited  = true;
-    progress[initialState].distance = 0;
+        }
 
+    }
 
-    return 0;
+    return progress[finalState].moves;
 }
 
 
