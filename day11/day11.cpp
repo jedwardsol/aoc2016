@@ -243,10 +243,7 @@ int solve(State initialState, State finalState, int numPairs)
             progress[candidate].moves = moves;
 
             toVisit.push( { moves, candidate });
-
-
         }
-
     }
 
     return progress[finalState].moves;
